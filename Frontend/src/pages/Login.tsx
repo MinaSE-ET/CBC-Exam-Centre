@@ -57,30 +57,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-2">
-            {/* Logo image */}
-            <img
-              src="Frontend/public/logo.png"
-              alt="CBC Exam Centre logo"
-              className="h-14 w-auto"
-              title="CBC Exam Centre"
-            />
-          </div>
-          <h1 className="text-3xl font-bold">CBC Exam Centre</h1>
-          <p className="text-muted-foreground">Login to access your exams</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+        <div className="flex flex-col items-center mb-6">
+          <img
+            src="/logo.png"
+            alt="CBC Exam Centre logo"
+            className="h-16 w-auto mb-2"
+            title="CBC Exam Centre"
+          />
+          <h1 className="text-2xl font-bold text-center">CBC Exam Centre</h1>
         </div>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
-              Enter your credentials to access the system
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
+        <h2 className="text-3xl font-bold text-center">Login</h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Login</CardTitle>
+              <CardDescription>
+                Enter your credentials to access the system
+              </CardDescription>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -125,8 +121,8 @@ const Login = () => {
                 )}
               </Button>
             </CardFooter>
-          </form>
-        </Card>
+          </Card>
+        </form>
       </div>
     </div>
   );
