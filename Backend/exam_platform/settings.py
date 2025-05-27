@@ -115,15 +115,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # Vite default port
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",  # Previous Vite port
-    "http://127.0.0.1:8080",
-    "http://localhost:3000",  # New Vite port
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 # REST Framework settings
 REST_FRAMEWORK = {
