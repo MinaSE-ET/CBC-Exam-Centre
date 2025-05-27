@@ -14,7 +14,7 @@ SECRET_KEY = 'w^(btqg%jyxmhg7_ex%!z*==3pl#5vr3r%p)v8xc5v%0w2-=_a'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 # Application definition
 INSTALLED_APPS = [
