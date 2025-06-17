@@ -76,12 +76,16 @@ WSGI_APPLICATION = 'exam_platform.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cbcexam_db',
-        'USER': 'cbcexam_db_user',
-        'PASSWORD': 'bQuSIioZcdw4ib0juKBpOK3bsS3oh7rw',
-        'HOST': 'dpg-d0r21tmmcj7s73cdu1o0-a.oregon-postgres.render.com',
-        'PORT': '5432',
+        'ENGINE': 'mysql.connector.django',
+        'NAME': 'CBC_Exam',
+        'USER': 'root',
+        'PASSWORD': 'Admin123!@#',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
     }
 }
 

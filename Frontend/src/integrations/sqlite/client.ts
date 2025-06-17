@@ -1,9 +1,9 @@
-
 import { v4 as uuidv4 } from "uuid";
 
 // This file is now just a compatibility layer for any code still using these utilities
 // The actual database operations are now handled by the Node.js backend with Prisma
 
+const baseURL = 'http://localhost:8000/api';
 console.log("Using backend API instead of SQLite mock database");
 
 export function generateId(): string {
