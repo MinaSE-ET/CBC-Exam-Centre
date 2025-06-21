@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Exam Results - {{ attempt.exam.title }} - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+        <div>
+            <h1 class="h3 mb-0 text-dark fw-bold">
+                <i class="fas fa-chart-bar text-primary me-2"></i>
+                Exam Results
+            </h1>
+            <p class="text-muted mb-0">{{ attempt.exam.title }} - {{ attempt.student.get_full_name|default:attempt.student.username }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if user.is_staff %}
+            <a href="{% url 'all_results' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to All Results
+            </a>
+            {% else %}
+            <a href="{% url 'my_exams' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to My Exams
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Results Summary -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Results Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Student</label>
+                            <p class="mb-0 fw-semibold">{{ attempt.student.get_full_name|default:attempt.student.username }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Exam</label>
+                            <p class="mb-0 fw-semibold">{{ attempt.exam.title }}</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Score</label>
+                            <p class="mb-0 fw-semibold">{{ attempt.score }}/{{ attempt.exam.total_marks }} ({{ attempt.score|floatformat:1 }}%)</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Status</label>
+                            <p class="mb-0">
+                                {% if attempt.score >= attempt.exam.passing_marks %}
+                                <span class="badge bg-success">Passed</span>
+                                {% else %}
+                                <span class="badge bg-danger">Failed</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Passing Mark</label>
+                            <p class="mb-0 fw-semibold">{{ attempt.exam.passing_marks }}/{{ attempt.exam.total_marks }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Start Time</label>
+                            <p class="mb-0 fw-semibold">{{ attempt.start_time|date:"F d, Y H:i" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">End Time</label>
+                            <p class="mb-0 fw-semibold">
+                                {% if attempt.end_time %}
+                                {{ attempt.end_time|date:"F d, Y H:i" }}
+                                {% else %}
+                                <span class="text-muted">Not completed</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if attempt.end_time %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-semibold text-muted">Duration</label>
+                            <p class="mb-0 fw-semibold">
+                                {% with duration=attempt.end_time|timeuntil:attempt.start_time %}
+                                {{ duration }}
+                                {% endwith %}
+                            </p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Details -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-question-circle me-2"></i>Question Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if attempt.answers.all %}
+                    <div class="accordion" id="questionsAccordion">
+                        {% for answer in attempt.answers.all %}
+                        <div class="accordion-item border-0 mb-3">
+                            <h2 class="accordion-header" id="question{{ answer.question.id }}">
+                                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ answer.question.id }}">
+                                    <div class="d-flex align-items-center w-100">
+                                        <div class="flex-grow-1">
+                                            <strong>Question {{ forloop.counter }}:</strong> {{ answer.question.question_text|truncatechars:80 }}
+                                        </div>
+                                        <div class="ms-3">
+                                            {% if answer.marks_obtained == answer.question.score %}
+                                            <span class="badge bg-success">Correct</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Incorrect</span>
+                                            {% endif %}
+                                            <span class="badge bg-light text-dark ms-1">{{ answer.marks_obtained }}/{{ answer.question.score }}</span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ answer.question.id }}" class="accordion-collapse collapse" data-bs-parent="#questionsAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <strong>Question:</strong> {{ answer.question.question_text }}
+                                    </div>
+                                    
+                                    {% if answer.question.question_type == 'single_choice' or answer.question.question_type == 'multiple_choice' or answer.question.question_type == 'true_false' %}
+                                    <div class="mb-3">
+                                        <strong>Options:</strong>
+                                        <ul class="list-unstyled mt-2">
+                                            {% for option in answer.question.options.all %}
+                                            <li class="mb-1">
+                                                <span class="{% if option.is_correct %}text-success fw-bold{% endif %}">
+                                                    {% if option in answer.selected_options.all %}
+                                                    <i class="fas fa-check-circle text-primary me-1"></i>
+                                                    {% else %}
+                                                    <i class="fas fa-circle text-muted me-1"></i>
+                                                    {% endif %}
+                                                    {{ option.text }}
+                                                    {% if option.is_correct %}
+                                                    <span class="badge bg-success ms-1">Correct</span>
+                                                    {% endif %}
+                                                </span>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% elif answer.question.question_type == 'short_answer' %}
+                                    <div class="mb-3">
+                                        <strong>Your Answer:</strong>
+                                        <p class="mt-1">{{ answer.text_answer|default:"No answer provided" }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if answer.question.explanation %}
+                                    <div class="mb-3">
+                                        <strong>Explanation:</strong>
+                                        <p class="mt-1 text-muted">{{ answer.question.explanation }}</p>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <strong>Type:</strong> {{ answer.question.get_question_type_display }} | 
+                                            <strong>Difficulty:</strong> {{ answer.question.get_difficulty_display }}
+                                        </small>
+                                        <span class="badge bg-{% if answer.marks_obtained == answer.question.score %}success{% else %}danger{% endif %}">
+                                            {{ answer.marks_obtained }}/{{ answer.question.score }} marks
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-question-circle fa-3x text-muted"></i>
+                        </div>
+                        <h6 class="text-muted mb-2">No answers recorded</h6>
+                        <p class="text-muted mb-3">No detailed answers are available for this attempt</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Performance Stats -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-chart-pie me-2"></i>Performance Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-percentage text-primary fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ attempt.score|floatformat:1 }}%</h6>
+                            <small class="text-muted">Score</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-check-circle text-success fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ attempt.answers.filter.marks_obtained__gt=0.count }}</h6>
+                            <small class="text-muted">Correct</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-times-circle text-danger fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ attempt.answers.filter.marks_obtained=0.count }}</h6>
+                            <small class="text-muted">Incorrect</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-clock text-info fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ attempt.answers.count }}</h6>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Info -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Exam Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">{{ attempt.exam.title }}</h6>
+                        {% if attempt.exam.description %}
+                        <p class="text-muted mb-2">{{ attempt.exam.description }}</p>
+                        {% endif %}
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Course</small>
+                                <span class="fw-semibold">{{ attempt.exam.course.name }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Duration</small>
+                                <span class="fw-semibold">{{ attempt.exam.duration_minutes }} min</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Requirements</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• {{ attempt.exam.questions.count }} questions</li>
+                            <li>• {{ attempt.exam.total_marks }} total marks</li>
+                            <li>• {{ attempt.exam.passing_marks }} to pass</li>
+                            <li>• {{ attempt.exam.duration_minutes }} minutes time limit</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if user.is_staff %}
+                        <a href="{% url 'all_results' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>View All Results
+                        </a>
+                        <a href="{% url 'exam_detail' attempt.exam.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-2"></i>View Exam Details
+                        </a>
+                        {% else %}
+                        <a href="{% url 'my_exams' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>Back to My Exams
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

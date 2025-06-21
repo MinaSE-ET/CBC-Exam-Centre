@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if object %}Edit Exam{% else %}Create New Exam{% endif %} - CBC Exam Platform
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+        <div>
+            <h1 class="h3 mb-0 text-dark fw-bold">
+                <i class="fas fa-file-alt text-primary me-2"></i>
+                {% if object %}Edit Exam{% else %}Create New Exam{% endif %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if object %}Update exam details and settings{% else %}Set up a new exam with questions and settings{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Exams
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Exam Form -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-edit me-2"></i>Exam Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Title -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">
+                                    Exam Title <span class="text-danger">*</span>
+                                </label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">
+                                    Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Course -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.course.id_for_label }}" class="form-label fw-semibold">
+                                    Course <span class="text-danger">*</span>
+                                </label>
+                                {{ form.course }}
+                                {% if form.course.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.course.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label fw-semibold">
+                                    Status <span class="text-danger">*</span>
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.status.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Duration -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.duration_minutes.id_for_label }}" class="form-label fw-semibold">
+                                    Duration (minutes) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.duration_minutes }}
+                                {% if form.duration_minutes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.duration_minutes.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Total Marks -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.total_marks.id_for_label }}" class="form-label fw-semibold">
+                                    Total Marks <span class="text-danger">*</span>
+                                </label>
+                                {{ form.total_marks }}
+                                {% if form.total_marks.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.total_marks.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Passing Marks -->
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.passing_marks.id_for_label }}" class="form-label fw-semibold">
+                                    Passing Marks <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passing_marks }}
+                                {% if form.passing_marks.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.passing_marks.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Start Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label fw-semibold">
+                                    Start Date & Time
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.start_date.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- End Date -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label fw-semibold">
+                                    End Date & Time
+                                </label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.end_date.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if object %}Update Exam{% else %}Create Exam{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Help Card -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Help & Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Exam Status</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li><i class="fas fa-circle text-warning me-1"></i>Draft: Not visible to students</li>
+                            <li><i class="fas fa-circle text-success me-1"></i>Published: Available to assigned students</li>
+                            <li><i class="fas fa-circle text-secondary me-1"></i>Archived: No longer active</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Duration & Marks</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• Set realistic time limits</li>
+                            <li>• Passing marks ≤ Total marks</li>
+                            <li>• Consider question difficulty</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Date Settings</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• Start date: When exam becomes available</li>
+                            <li>• End date: When exam closes</li>
+                            <li>• Leave empty for immediate availability</li>
+                        </ul>
+                    </div>
+                    
+                    {% if object %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Next Steps:</strong> After updating, you can assign questions and students to this exam.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Next Steps:</strong> After creating, you'll need to add questions and assign students.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if object %}
+            <div class="card border-0 shadow-sm mt-3" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'assign_questions' object.pk %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-question-circle me-2"></i>Assign Questions
+                        </a>
+                        <a href="{% url 'assign_users' object.pk %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-users me-2"></i>Assign Students
+                        </a>
+                        <a href="{% url 'exam_detail' object.pk %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-eye me-2"></i>View Exam Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-calculate total marks based on assigned questions
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalMarksField = document.getElementById('{{ form.total_marks.id_for_label }}');
+        const passingMarksField = document.getElementById('{{ form.passing_marks.id_for_label }}');
+        
+        // Ensure passing marks don't exceed total marks
+        totalMarksField.addEventListener('input', function() {
+            const totalMarks = parseInt(this.value) || 0;
+            const passingMarks = parseInt(passingMarksField.value) || 0;
+            
+            if (passingMarks > totalMarks) {
+                passingMarksField.value = totalMarks;
+            }
+        });
+        
+        passingMarksField.addEventListener('input', function() {
+            const totalMarks = parseInt(totalMarksField.value) || 0;
+            const passingMarks = parseInt(this.value) || 0;
+            
+            if (passingMarks > totalMarks) {
+                this.setCustomValidity('Passing marks cannot exceed total marks');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    });
+</script>
+{% endblock %} 

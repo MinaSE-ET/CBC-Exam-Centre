@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Question - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Delete Confirmation Card -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0 text-center">
+                    <div class="mb-3">
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3 mx-auto" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger fa-3x"></i>
+                        </div>
+                    </div>
+                    <h3 class="mb-0 fw-bold text-dark">Delete Question</h3>
+                    <p class="text-muted mb-0">Are you sure you want to delete this question?</p>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <h5 class="fw-semibold text-primary">{{ object.question_text|truncatechars:100 }}</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted d-block">Type</small>
+                                <span class="fw-semibold">{{ object.get_question_type_display }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Difficulty</small>
+                                <span class="fw-semibold">{{ object.get_difficulty_display }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Score</small>
+                                <span class="fw-semibold">{{ object.score }} marks</span>
+                            </div>
+                        </div>
+                        {% if object.category %}
+                        <div class="mt-2">
+                            <small class="text-muted">Category: {{ object.category }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. The question will be removed from all exams.
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'question_detail' object.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Question
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

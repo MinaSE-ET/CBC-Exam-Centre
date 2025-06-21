@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-lg" data-aos="zoom-in">
+                <div class="card-body p-5">
+                    <!-- Logo and Title -->
+                    <div class="text-center mb-4">
+                        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-graduation-cap text-white fa-2x"></i>
+                        </div>
+                        <h2 class="fw-bold text-primary mb-2">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your CBC Exam Platform account</p>
+                    </div>
+
+                    <!-- Debug Information -->
+                    {% if request.method == 'POST' %}
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-bug me-2"></i>Debug Information:</h6>
+                            <p><strong>Method:</strong> {{ request.method }}</p>
+                            <p><strong>POST Data:</strong> {{ request.POST }}</p>
+                            <p><strong>Form Valid:</strong> {{ form.is_valid }}</p>
+                            <p><strong>Form Bound:</strong> {{ form.is_bound }}</p>
+                            <p><strong>Form Data:</strong> {{ form.data }}</p>
+                            <p><strong>Form Fields:</strong> {{ form.fields.keys }}</p>
+                            {% if form.errors %}
+                                <p><strong>Form Errors:</strong></p>
+                                <ul>
+                                    {% for field, errors in form.errors.items %}
+                                        <li><strong>{{ field }}:</strong> {{ errors }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p><strong>No form errors found</strong></p>
+                            {% endif %}
+                            {% if form.non_field_errors %}
+                                <p><strong>Non-field Errors:</strong></p>
+                                <ul>
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Login Form -->
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Form Errors:</h6>
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="fas fa-user me-2"></i>Username
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Password
+                            </label>
+                            <div class="input-group">
+                                {{ form.password }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Remember Me -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Sign In
+                            </button>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-4">
+                <p class="text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Secure login powered by CBC Exam Platform
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.form-control {
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--cbc-red);
+    box-shadow: 0 0 0 3px rgba(178, 27, 44, 0.1);
+    transform: translateY(-1px);
+}
+
+.btn-lg {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.input-group .btn {
+    border-radius: 0 12px 12px 0;
+    border-left: none;
+}
+
+.input-group .form-control {
+    border-radius: 12px 0 0 12px;
+}
+
+.form-check-input:checked {
+    background-color: var(--cbc-red);
+    border-color: var(--cbc-red);
+}
+
+/* Floating animation for the logo */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.bg-primary.bg-gradient {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Pulse animation for the submit button */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 2rem !important;
+    }
+    
+    .col-md-6.col-lg-4 {
+        padding: 0 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordField = document.querySelector('input[type="password"]');
+    
+    if (togglePassword && passwordField) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Form validation enhancement
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="loading"></span> Signing in...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+
+    // Auto-focus on username field
+    const usernameField = document.querySelector('input[name="username"]');
+    if (usernameField) {
+        usernameField.focus();
+    }
+
+    // Remember me functionality
+    const rememberMe = document.getElementById('rememberMe');
+    if (rememberMe) {
+        // Check if there's a saved preference
+        const saved = localStorage.getItem('rememberMe');
+        if (saved === 'true') {
+            rememberMe.checked = true;
+        }
+
+        rememberMe.addEventListener('change', function() {
+            localStorage.setItem('rememberMe', this.checked);
+        });
+    }
+});
+</script>
+{% endblock %} 

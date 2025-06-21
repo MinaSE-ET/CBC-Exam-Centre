@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Course - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Delete Confirmation Card -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0 text-center">
+                    <div class="mb-3">
+                        <div class="bg-danger bg-opacity-10 rounded-circle p-3 mx-auto" style="width: 80px; height: 80px;">
+                            <i class="fas fa-exclamation-triangle text-danger fa-3x"></i>
+                        </div>
+                    </div>
+                    <h3 class="mb-0 fw-bold text-dark">Delete Course</h3>
+                    <p class="text-muted mb-0">Are you sure you want to delete this course?</p>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <h5 class="fw-semibold text-primary">{{ object.name }}</h5>
+                        {% if object.description %}
+                        <p class="text-muted mb-2">{{ object.description }}</p>
+                        {% endif %}
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted d-block">Subject</small>
+                                <span class="fw-semibold">{{ object.subject.name|default:"None" }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Exams</small>
+                                <span class="fw-semibold">{{ object.exams.count }}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Created</small>
+                                <span class="fw-semibold">{{ object.created_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Warning:</strong> This action cannot be undone. All exams in this course will be permanently deleted.
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Delete Course
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

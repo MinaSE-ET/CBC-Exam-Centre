@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4" data-aos="fade-down">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <h1 class="display-4 fw-bold text-primary mb-3">
+                        <i class="fas fa-user-graduate me-3"></i>
+                        Welcome, {{ user.get_full_name|default:user.username }}!
+                    </h1>
+                    <p class="lead text-muted">Ready to take your exams? Check out your assigned exams below.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Stats -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-gradient rounded-circle p-3">
+                                <i class="fas fa-file-alt text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Assigned Exams</h5>
+                            <h2 class="mb-0 fw-bold text-primary">{{ assigned_exams.count }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-gradient rounded-circle p-3">
+                                <i class="fas fa-check-circle text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Completed</h5>
+                            <h2 class="mb-0 fw-bold text-success">{{ recent_attempts|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-gradient rounded-circle p-3">
+                                <i class="fas fa-clock text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Pending</h5>
+                            <h2 class="mb-0 fw-bold text-info">{{ assigned_exams.count|add:"-"|add:recent_attempts|length }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assigned Exams -->
+    <div class="row mb-4">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Your Assigned Exams
+                    </h5>
+                    <a href="{% url 'my_exams' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if assigned_exams %}
+                        <div class="row g-4">
+                            {% for exam in assigned_exams %}
+                                <div class="col-lg-6 col-xl-4">
+                                    <div class="card border-0 shadow-sm h-100 exam-card" data-aos="zoom-in" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="flex-grow-1">
+                                                    <h5 class="card-title fw-bold text-primary mb-1">{{ exam.title }}</h5>
+                                                    <p class="text-muted mb-2">{{ exam.course.name }}</p>
+                                                </div>
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-play me-1"></i> Available
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Duration</small>
+                                                    <strong>{{ exam.duration_minutes }} min</strong>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Total Marks</small>
+                                                    <strong>{{ exam.total_marks }} pts</strong>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if exam.description %}
+                                                <p class="text-muted small mb-3">{{ exam.description|truncatechars:100 }}</p>
+                                            {% endif %}
+                                            
+                                            <div class="d-grid">
+                                                <a href="{% url 'take_exam' exam.pk %}" class="btn btn-primary">
+                                                    <i class="fas fa-play me-2"></i> Start Exam
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No exams assigned</h5>
+                            <p class="text-muted">You don't have any exams assigned yet. Check back later!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Attempts -->
+    <div class="row">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Exam Attempts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_attempts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Course</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attempt in recent_attempts %}
+                                        <tr>
+                                            <td>
+                                                <h6 class="mb-0">{{ attempt.exam.title }}</h6>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">{{ attempt.exam.course.name }}</span>
+                                            </td>
+                                            <td>
+                                                {% if attempt.is_completed %}
+                                                    <span class="badge bg-{% if attempt.score >= 70 %}success{% elif attempt.score >= 50 %}warning{% else %}danger{% endif %} fs-6">
+                                                        {{ attempt.score }}%
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if attempt.is_completed %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i> Completed
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i> In Progress
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ attempt.created_at|date:"M d, Y H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if attempt.is_completed %}
+                                                    <a href="{% url 'exam_results' attempt.id %}" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-eye me-1"></i> View Results
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'take_exam' attempt.exam.pk %}" class="btn btn-outline-warning btn-sm">
+                                                        <i class="fas fa-play me-1"></i> Continue
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No exam attempts yet</h5>
+                            <p class="text-muted">Your exam attempts will appear here once you start taking exams.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.exam-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.exam-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.exam-card .card-body {
+    position: relative;
+    overflow: hidden;
+}
+
+.exam-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.exam-card:hover::before {
+    left: 100%;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any student dashboard-specific JavaScript here
+    console.log('Student Dashboard loaded successfully');
+    
+    // Add click handlers for exam cards
+    document.querySelectorAll('.exam-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const startBtn = this.querySelector('.btn-primary');
+            if (startBtn) {
+                startBtn.click();
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

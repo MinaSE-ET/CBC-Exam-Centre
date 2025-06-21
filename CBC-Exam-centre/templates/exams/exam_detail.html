@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+        <div>
+            <h1 class="h3 mb-0 text-dark fw-bold">
+                <i class="fas fa-file-alt text-primary me-2"></i>
+                {{ exam.title }}
+            </h1>
+            <p class="text-muted mb-0">{{ exam.description|default:"No description provided" }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'exam_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Exams
+            </a>
+            <a href="{% url 'exam_update' exam.pk %}" class="btn btn-primary">
+                <i class="fas fa-edit me-2"></i>Edit Exam
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Exam Information -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Exam Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Course</label>
+                            <p class="mb-0 fw-semibold">{{ exam.course.name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Status</label>
+                            <p class="mb-0">
+                                {% if exam.status == 'published' %}
+                                <span class="badge bg-success">Published</span>
+                                {% elif exam.status == 'draft' %}
+                                <span class="badge bg-warning text-dark">Draft</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Archived</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Duration</label>
+                            <p class="mb-0 fw-semibold">{{ exam.duration_minutes }} minutes</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Total Marks</label>
+                            <p class="mb-0 fw-semibold">{{ exam.total_marks }} marks</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-semibold text-muted">Passing Marks</label>
+                            <p class="mb-0 fw-semibold">{{ exam.passing_marks }} marks</p>
+                        </div>
+                        {% if exam.start_date %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">Start Date</label>
+                            <p class="mb-0 fw-semibold">{{ exam.start_date|date:"F d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                        {% if exam.end_date %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold text-muted">End Date</label>
+                            <p class="mb-0 fw-semibold">{{ exam.end_date|date:"F d, Y H:i" }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-semibold text-muted">Created</label>
+                            <p class="mb-0 fw-semibold">{{ exam.created_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-question-circle me-2"></i>Questions ({{ exam.questions.count }})
+                    </h5>
+                    <a href="{% url 'assign_questions' exam.pk %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Assign Questions
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if exam.questions.all %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Type</th>
+                                    <th>Difficulty</th>
+                                    <th>Score</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for question in exam.questions.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                                                    <i class="fas fa-question text-primary"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0 fw-semibold">{{ question.question_text|truncatechars:60 }}</h6>
+                                                {% if question.category %}
+                                                <small class="text-muted">{{ question.category }}</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">{{ question.get_question_type_display }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if question.difficulty == 'easy' %}success{% elif question.difficulty == 'medium' %}warning{% elif question.difficulty == 'hard' %}danger{% else %}secondary{% endif %}">
+                                            {{ question.get_difficulty_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ question.score }} marks</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'question_detail' question.pk %}" class="btn btn-sm btn-outline-primary" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-question-circle fa-3x text-muted"></i>
+                        </div>
+                        <h6 class="text-muted mb-2">No questions assigned</h6>
+                        <p class="text-muted mb-3">Assign questions to this exam to make it functional</p>
+                        <a href="{% url 'assign_questions' exam.pk %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Assign Questions
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Assigned Students -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-users me-2"></i>Assigned Students ({{ exam.assigned_users.count }})
+                    </h5>
+                    <a href="{% url 'assign_users' exam.pk %}" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-plus me-1"></i>Assign Students
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if exam.assigned_users.all %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Score</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in exam.assigned_users.all %}
+                                {% with attempt=user.exam_attempts.all|first %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                <div class="bg-info bg-opacity-10 rounded-circle p-2">
+                                                    <i class="fas fa-user text-info"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-0 fw-semibold">{{ user.get_full_name|default:user.username }}</h6>
+                                                <small class="text-muted">@{{ user.username }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ user.email }}</span>
+                                    </td>
+                                    <td>
+                                        {% if attempt %}
+                                            {% if attempt.is_completed %}
+                                            <span class="badge bg-success">Completed</span>
+                                            {% else %}
+                                            <span class="badge bg-warning text-dark">In Progress</span>
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="badge bg-secondary">Not Started</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if attempt and attempt.is_completed %}
+                                        <span class="fw-semibold">{{ attempt.score }}/{{ exam.total_marks }}</span>
+                                        {% else %}
+                                        <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% if attempt %}
+                                        <a href="{% url 'exam_results' attempt.pk %}" class="btn btn-sm btn-outline-primary" title="View Results">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-users fa-3x text-muted"></i>
+                        </div>
+                        <h6 class="text-muted mb-2">No students assigned</h6>
+                        <p class="text-muted mb-3">Assign students to this exam to allow them to take it</p>
+                        <a href="{% url 'assign_users' exam.pk %}" class="btn btn-info">
+                            <i class="fas fa-plus me-2"></i>Assign Students
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'assign_questions' exam.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-question-circle me-2"></i>Manage Questions
+                        </a>
+                        <a href="{% url 'assign_users' exam.pk %}" class="btn btn-outline-info">
+                            <i class="fas fa-users me-2"></i>Manage Students
+                        </a>
+                        <a href="{% url 'exam_update' exam.pk %}" class="btn btn-outline-warning">
+                            <i class="fas fa-edit me-2"></i>Edit Exam
+                        </a>
+                        <a href="{% url 'exam_delete' exam.pk %}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Delete Exam
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Statistics -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-chart-bar me-2"></i>Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-users text-primary fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ exam.assigned_users.count }}</h6>
+                            <small class="text-muted">Assigned</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-check-circle text-success fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ exam.attempts.filter.is_completed.count }}</h6>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-clock text-warning fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ exam.attempts.filter.is_completed=False.count }}</h6>
+                            <small class="text-muted">In Progress</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-info bg-opacity-10 rounded-circle p-3 mx-auto mb-2" style="width: 60px; height: 60px;">
+                                <i class="fas fa-question-circle text-info fa-2x"></i>
+                            </div>
+                            <h6 class="mb-1 fw-bold">{{ exam.questions.count }}</h6>
+                            <small class="text-muted">Questions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Status -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Status Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Current Status</h6>
+                        <p class="mb-2">
+                            {% if exam.status == 'published' %}
+                            <span class="badge bg-success">Published</span>
+                            <small class="text-muted d-block mt-1">Exam is available to assigned students</small>
+                            {% elif exam.status == 'draft' %}
+                            <span class="badge bg-warning text-dark">Draft</span>
+                            <small class="text-muted d-block mt-1">Exam is not visible to students</small>
+                            {% else %}
+                            <span class="badge bg-secondary">Archived</span>
+                            <small class="text-muted d-block mt-1">Exam is no longer active</small>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    {% if exam.start_date or exam.end_date %}
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Time Constraints</h6>
+                        {% if exam.start_date %}
+                        <p class="mb-1"><small class="text-muted">Start:</small> {{ exam.start_date|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                        {% if exam.end_date %}
+                        <p class="mb-0"><small class="text-muted">End:</small> {{ exam.end_date|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <h6 class="fw-semibold text-primary">Requirements</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• {{ exam.questions.count }} questions assigned</li>
+                            <li>• {{ exam.assigned_users.count }} students assigned</li>
+                            <li>• {{ exam.duration_minutes }} minutes duration</li>
+                            <li>• {{ exam.passing_marks }}/{{ exam.total_marks }} to pass</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
