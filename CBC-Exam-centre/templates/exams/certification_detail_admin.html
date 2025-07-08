@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Certification Admin - {{ certification.exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-dark">
+                        <i class="fas fa-certificate me-2" style="color: #b21b2c;"></i>
+                        Certification Details (Admin)
+                    </h1>
+                    <p class="text-muted mb-0">{{ certification.exam.title }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'download_certification' certification.certificate_id %}" class="btn btn-success">
+                        <i class="fas fa-download me-2"></i>Download PDF
+                    </a>
+                    {% if certification.is_valid %}
+                        <a href="{% url 'revoke_certification' certification.certificate_id %}" class="btn btn-danger">
+                            <i class="fas fa-ban me-2"></i>Revoke Certificate
+                        </a>
+                    {% else %}
+                        <a href="{% url 'restore_certification' certification.certificate_id %}" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Restore Certificate
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'certificate_management' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Management
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-certificate me-2" style="color: #b21b2c;"></i>
+                        Certificate Preview
+                    </h5>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold mb-3" style="color: #1a2a3a;">Certificate of Completion</h2>
+                        <p class="text-muted">This is to certify that</p>
+                        <h3 class="fw-bold mb-4" style="color: #1a2a3a;">{{ certification.student.get_full_name|default:certification.student.username }}</h3>
+                        <p class="text-muted">has successfully completed</p>
+                        <h4 class="fw-bold mb-4" style="color: #b21b2c;">{{ certification.exam.title }}</h4>
+                        <p class="text-muted">in</p>
+                        <h5 class="fw-bold mb-4" style="color: #1a2a3a;">{{ certification.course.name }}</h5>
+                    </div>
+
+                    <div class="row text-center mb-5">
+                        <div class="col-md-4">
+                            <h3 class="fw-bold" style="color: #b21b2c;">{{ certification.percentage_score }}%</h3>
+                            <p class="text-muted">Final Score</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="fw-bold" style="color: #1a2a3a;">{{ certification.get_grade }}</h3>
+                            <p class="text-muted">Grade</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="fw-bold" style="color: #b21b2c;">{{ certification.score }}/{{ certification.exam.total_marks }}</h3>
+                            <p class="text-muted">Marks Obtained</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-4">
+                            <strong>Certificate ID:</strong> 
+                            <code style="color: #b21b2c;">{{ certification.certificate_id }}</code>
+                        </p>
+                        <p class="text-muted">
+                            <strong>Issued on:</strong> {{ certification.issued_date|date:"F d, Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2" style="color: #b21b2c;"></i>
+                        Certificate Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Certificate ID</small>
+                        <code style="color: #b21b2c;">{{ certification.certificate_id }}</code>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        {% if certification.is_valid %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>Valid
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times me-1"></i>Expired/Revoked
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Issued Date</small>
+                        <strong>{{ certification.issued_date|date:"M d, Y" }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Verification URL</small>
+                        <a href="{% url 'verify_certification' certification.certificate_id %}" class="text-decoration-none">
+                            <i class="fas fa-external-link-alt me-1"></i>Verify Certificate
+                        </a>
+                    </div>
+                    <div class="mb-3">
+                        <a href="{% url 'download_certification' certification.certificate_id %}" class="btn btn-success btn-sm w-100">
+                            <i class="fas fa-download me-2"></i>Download PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2" style="color: #b21b2c;"></i>
+                        Student Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Full Name</small>
+                        <strong>{{ certification.student.get_full_name|default:"Not provided" }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Username</small>
+                        <strong>{{ certification.student.username }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email</small>
+                        <strong>{{ certification.student.email }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Date Joined</small>
+                        <strong>{{ certification.student.date_joined|date:"M d, Y" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2" style="color: #b21b2c;"></i>
+                        Exam Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Exam Title</small>
+                        <strong>{{ certification.exam.title }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Course</small>
+                        <strong>{{ certification.course.name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Passing Marks</small>
+                        <strong>{{ certification.exam.passing_marks }}/{{ certification.exam.total_marks }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Duration</small>
+                        <strong>{{ certification.exam.duration_minutes }} minutes</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Exam Status</small>
+                        <span class="badge bg-{{ certification.exam.status }}">
+                            {{ certification.exam.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

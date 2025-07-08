@@ -3,6 +3,11 @@ from django import template
 register = template.Library()
 
 @register.filter
+def get_item(dictionary, key):
+    """Get item from dictionary by key"""
+    return dictionary.get(key)
+
+@register.filter
 def question_type_color(value):
     mapping = {
         'multiple_choice': 'primary',
@@ -29,4 +34,13 @@ def difficulty_color(value):
         'medium': 'warning',
         'hard': 'danger',
     }
-    return mapping.get(value, 'secondary') 
+    return mapping.get(value, 'secondary')
+
+@register.filter
+def get_answer_text(short_answers, field_name):
+    # field_name is like 'answer_123'
+    answer_id = field_name.split('_')[-1]
+    for answer in short_answers:
+        if str(answer.id) == answer_id:
+            return answer.text_answer or 'No answer provided'
+    return '' 

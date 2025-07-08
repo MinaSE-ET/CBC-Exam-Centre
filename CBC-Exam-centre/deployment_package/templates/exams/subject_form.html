@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if object %}Edit Subject{% else %}Add New Subject{% endif %} - CBC Exam Platform
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4" data-aos="fade-down">
+        <div>
+            <h1 class="h3 mb-0 text-dark fw-bold">
+                <i class="fas fa-book text-primary me-2"></i>
+                {% if object %}Edit Subject{% else %}Add New Subject{% endif %}
+            </h1>
+            <p class="text-muted mb-0">
+                {% if object %}Update subject information{% else %}Create a new academic subject{% endif %}
+            </p>
+        </div>
+        <a href="{% url 'subject_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Subjects
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Subject Form -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-edit me-2"></i>Subject Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Name -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                                    Subject Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.name.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-3">
+                                <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold">
+                                    Description
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">Provide a brief description of the subject and its scope.</div>
+                            </div>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'subject_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if object %}Update Subject{% else %}Create Subject{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Help Card -->
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-info-circle me-2"></i>Help & Tips
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Subject Organization</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• Subjects group related courses together</li>
+                            <li>• Examples: Mathematics, Science, Business</li>
+                            <li>• Each subject can have multiple courses</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Naming Guidelines</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• Use clear, descriptive names</li>
+                            <li>• Keep names concise but informative</li>
+                            <li>• Avoid abbreviations unless standard</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6 class="fw-semibold text-primary">Description Tips</h6>
+                        <ul class="list-unstyled small text-muted">
+                            <li>• Explain the subject's scope</li>
+                            <li>• Mention key topics covered</li>
+                            <li>• Include learning objectives</li>
+                        </ul>
+                    </div>
+                    
+                    {% if object %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Next Steps:</strong> After updating, you can add courses to this subject.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Next Steps:</strong> After creating, you can add courses to this subject.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if object %}
+            <div class="card border-0 shadow-sm mt-3" data-aos="fade-up">
+                <div class="card-header bg-transparent border-0">
+                    <h5 class="mb-0 fw-bold text-dark">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'course_create' %}?subject={{ object.pk }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Add Course
+                        </a>
+                        <a href="{% url 'subject_list' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-list me-2"></i>View All Subjects
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

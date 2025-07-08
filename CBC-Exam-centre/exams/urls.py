@@ -37,7 +37,23 @@ urlpatterns = [
     path('my-exams/', views.my_exams, name='my_exams'),
     path('take-exam/<int:pk>/', views.take_exam, name='take_exam'),
     path('exam-results/<int:attempt_id>/', views.exam_results, name='exam_results'),
+    path('exam-results/<int:attempt_id>/review/', views.review_attempt, name='review_attempt'),
+    
+    # Certification Views
+    path('my-certifications/', views.my_certifications, name='my_certifications'),
+    path('certification/<str:certificate_id>/', views.certification_detail, name='certification_detail'),
+    path('certification/<str:certificate_id>/download/', views.download_certification, name='download_certification'),
+    path('verify/<str:certificate_id>/', views.verify_certification, name='verify_certification'),
+    
+    # Certificate Management (Admin)
+    path('certificate-management/', views.certificate_management, name='certificate_management'),
+    path('certificate-management/<str:certificate_id>/', views.certificate_detail_admin, name='certificate_detail_admin'),
+    path('certificate-management/<str:certificate_id>/revoke/', views.revoke_certification, name='revoke_certification'),
+    path('certificate-management/<str:certificate_id>/restore/', views.restore_certification, name='restore_certification'),
+    path('certificate-management/bulk-actions/', views.bulk_certificate_actions, name='bulk_certificate_actions'),
+    path('certificate-analytics/', views.certificate_analytics, name='certificate_analytics'),
     
     # Results (Admin)
     path('all-results/', views.all_results, name='all_results'),
+    path('verify', views.verify_certificate, name='verify_certificate'),
 ] 

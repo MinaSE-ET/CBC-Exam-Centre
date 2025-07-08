@@ -1,0 +1,1753 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load exam_extras %}
+
+{% block title %}{% if form.instance.pk %}Edit Question{% else %}Create Question{% endif %} - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="question-form-container">
+    <!-- Simple Header -->
+    <div class="form-header">
+        <div class="header-content">
+            <div class="header-left">
+                <nav aria-label="breadcrumb" class="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'dashboard' %}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'question_list' %}">Questions</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            {% if form.instance.pk %}Edit Question{% else %}Create Question{% endif %}
+                        </li>
+                    </ol>
+                </nav>
+                <div class="page-title">
+                    <h1 class="title-text">
+                        {% if form.instance.pk %}Edit Question{% else %}Create New Question{% endif %}
+                    </h1>
+                    <p class="title-subtitle">
+                        {% if form.instance.pk %}
+                            Update question details and content
+                        {% else %}
+                            Create a new question for your exam
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'question_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i>Back
+                </a>
+                {% if form.instance.pk %}
+                    <a href="{% url 'question_detail' form.instance.pk %}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye"></i>View
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Progress -->
+    <div class="progress-section">
+        <div class="progress-steps">
+            <div class="step active" id="step1" data-step="1">
+                <div class="step-icon">1</div>
+                <span class="step-label">Basic Info</span>
+            </div>
+            <div class="step" id="step2" data-step="2">
+                <div class="step-icon">2</div>
+                <span class="step-label">Content</span>
+            </div>
+            <div class="step" id="step3" data-step="3">
+                <div class="step-icon">3</div>
+                <span class="step-label">Review</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Form Layout -->
+    <div class="form-layout">
+        <!-- Form Content -->
+        <div class="form-content">
+            <div class="form-card">
+                <form method="post" id="questionForm" class="simple-form" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-step active" id="step1-content">
+                        <div class="step-header">
+                            <h3 class="step-title">Basic Information</h3>
+                            <p class="step-description">Configure question type and settings</p>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <!-- Question Type -->
+                            <div class="form-group">
+                                <label for="{{ form.question_type.id_for_label }}" class="form-label">
+                                    Question Type
+                                </label>
+                                {{ form.question_type }}
+                                <div class="form-help">
+                                    Choose the appropriate question format
+                                </div>
+                                {% if form.question_type.errors %}
+                                    <div class="form-error">
+                                        {% for error in form.question_type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Difficulty Level -->
+                            <div class="form-group">
+                                <label for="{{ form.difficulty.id_for_label }}" class="form-label">
+                                    Difficulty Level
+                                </label>
+                                {{ form.difficulty }}
+                                <div class="form-help">
+                                    Set the appropriate difficulty level
+                                </div>
+                                {% if form.difficulty.errors %}
+                                    <div class="form-error">
+                                        {% for error in form.difficulty.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group full-width">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">
+                                    Category
+                                </label>
+                                {{ form.category }}
+                                <div class="form-help">
+                                    Organize questions by topic or subject area
+                                </div>
+                                {% if form.category.errors %}
+                                    <div class="form-error">
+                                        {% for error in form.category.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Points -->
+                            <div class="form-group">
+                                <label for="{{ form.score.id_for_label }}" class="form-label">
+                                    Points Value
+                                </label>
+                                {{ form.score }}
+                                <div class="form-help">
+                                    Number of points this question contributes
+                                </div>
+                                {% if form.score.errors %}
+                                    <div class="form-error">
+                                        {% for error in form.score.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="step-navigation">
+                            <button type="button" class="btn btn-outline-secondary prev-step" disabled>
+                                Previous
+                            </button>
+                            <div class="step-counter">
+                                Step <span class="current-step">1</span> of 3
+                            </div>
+                            <button type="button" class="btn btn-primary next-step">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Question Content & Options -->
+                    <div class="form-step" id="step2-content">
+                        <div class="step-header">
+                            <h3 class="step-title">Question Content</h3>
+                            <p class="step-description">Write your question and add answer options</p>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="form-group full-width">
+                            <label for="{{ form.question_text.id_for_label }}" class="form-label">
+                                Question Text
+                            </label>
+                            <div class="editor-container">
+                                <div class="editor-toolbar">
+                                    <button type="button" class="toolbar-btn" onclick="formatText('bold')" title="Bold">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" onclick="formatText('italic')" title="Italic">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button type="button" class="toolbar-btn" onclick="insertImage()" title="Insert Image">
+                                        <i class="fas fa-image"></i>
+                                    </button>
+                                </div>
+                                <div class="editor-content">
+                                    {{ form.question_text }}
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Write your question clearly. You can use basic formatting and insert images.
+                            </div>
+                            {% if form.question_text.errors %}
+                                <div class="form-error">
+                                    {% for error in form.question_text.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div id="optionsSection" class="options-section" style="display: none;">
+                            <div class="section-header">
+                                <h4 class="section-title">Answer Options</h4>
+                                <button type="button" class="btn btn-primary btn-sm" id="addOption">
+                                    <i class="fas fa-plus"></i>Add Option
+                                </button>
+                            </div>
+                            
+                            <div class="options-container" id="optionsContainer">
+                                <div id="noOptionsMessage" class="empty-state">
+                                    <p>No options added yet. Click "Add Option" to start.</p>
+                                </div>
+                            </div>
+
+                            <div class="options-info">
+                                <div class="info-card">
+                                    <p><strong>Tip:</strong> Click the checkmark button to mark the correct answer(s).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-navigation">
+                            <button type="button" class="btn btn-outline-secondary prev-step">
+                                Previous
+                            </button>
+                            <div class="step-counter">
+                                Step <span class="current-step">2</span> of 3
+                            </div>
+                            <button type="button" class="btn btn-primary next-step">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Review and Submit -->
+                    <div class="form-step" id="step3-content">
+                        <div class="step-header">
+                            <h3 class="step-title">Review & Submit</h3>
+                            <p class="step-description">Finalize your question and save it</p>
+                        </div>
+
+                        <!-- Explanation -->
+                        <div class="form-group full-width">
+                            <label for="{{ form.explanation.id_for_label }}" class="form-label">
+                                Explanation (Optional)
+                            </label>
+                            {{ form.explanation }}
+                            <div class="form-help">
+                                Provide a detailed explanation for the correct answer
+                            </div>
+                            {% if form.explanation.errors %}
+                                <div class="form-error">
+                                    {% for error in form.explanation.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-group">
+                            <label for="{{ form.is_active.id_for_label }}" class="form-label">
+                                Question Status
+                            </label>
+                            <div class="toggle-wrapper">
+                                {{ form.is_active }}
+                                <span class="toggle-text">Active questions can be used in exams</span>
+                            </div>
+                            {% if form.is_active.errors %}
+                                <div class="form-error">
+                                    {% for error in form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="form-errors">
+                                {% for error in form.non_field_errors %}
+                                    <div class="error-item">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="step-navigation">
+                            <button type="button" class="btn btn-outline-secondary prev-step">
+                                Previous
+                            </button>
+                            <div class="step-counter">
+                                Step <span class="current-step">3</span> of 3
+                            </div>
+                            <div class="action-buttons">
+                                <button type="button" class="btn btn-outline-primary" id="saveDraftBtn">
+                                    Save Draft
+                                </button>
+                                <button type="submit" class="btn btn-success" id="submitBtn">
+                                    {% if form.instance.pk %}Update Question{% else %}Create Question{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Simple Sidebar -->
+        <div class="form-sidebar">
+            <!-- Live Preview -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h6 class="card-title">Live Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div id="questionPreview" class="preview-content">
+                        <div class="empty-preview">
+                            <p>Question preview will appear here as you type</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h6 class="card-title">Quick Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="tips-list">
+                        <div class="tip-item">
+                            <strong>Clear & Concise</strong>
+                            <p>Write questions that are easy to understand</p>
+                        </div>
+                        <div class="tip-item">
+                            <strong>Balanced Options</strong>
+                            <p>Make all options plausible and similar in length</p>
+                        </div>
+                        <div class="tip-item">
+                            <strong>One Concept</strong>
+                            <p>Test one main concept per question</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="sidebar-card">
+                <div class="card-header">
+                    <h6 class="card-title">Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Words:</span>
+                            <span class="stat-value" id="wordCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Characters:</span>
+                            <span class="stat-value" id="charCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Options:</span>
+                            <span class="stat-value" id="optionCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Correct:</span>
+                            <span class="stat-value" id="correctCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Save Button -->
+<div class="floating-save-btn" id="floatingSaveBtn">
+    <button type="button" class="btn btn-primary" id="floatingSaveBtn">
+        <i class="fas fa-save"></i>Save Question
+    </button>
+</div>
+
+<style>
+/* Simple Question Form Styles */
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #64748b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --light-color: #f8fafc;
+    --dark-color: #1e293b;
+    --border-color: #e2e8f0;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --radius: 8px;
+}
+
+/* Container Layout */
+.question-form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+/* Simple Header */
+.form-header {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.header-left {
+    flex: 1;
+}
+
+/* Simple Breadcrumb */
+.breadcrumb {
+    margin-bottom: 1rem;
+}
+
+.breadcrumb .breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--secondary-color);
+}
+
+/* Page Title */
+.title-text {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.title-subtitle {
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Header Actions */
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Simple Progress */
+.progress-section {
+    background: white;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.step-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.step.active .step-icon {
+    background: var(--primary-color);
+    color: white;
+}
+
+.step.completed .step-icon {
+    background: var(--success-color);
+    color: white;
+}
+
+.step-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.step.active .step-label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.step.completed .step-label {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+/* Form Layout */
+.form-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* Form Content */
+.form-content {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.form-card {
+    padding: 2rem;
+}
+
+/* Simple Form */
+.simple-form {
+    max-width: none;
+}
+
+/* Step Header */
+.step-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.step-description {
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Form Help */
+.form-help {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Form Errors */
+.form-error {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.form-errors {
+    margin-bottom: 1.5rem;
+}
+
+.error-item {
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    background: #fef2f2;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--danger-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Step Navigation */
+.step-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+}
+
+.step-counter {
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Simple Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--secondary-color);
+    border-color: var(--border-color);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--secondary-color);
+    color: white;
+    border-color: var(--secondary-color);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Editor Container */
+.editor-container {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.editor-container:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: white;
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toolbar-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.editor-content {
+    padding: 1rem;
+}
+
+.editor-content textarea {
+    border: none;
+    outline: none;
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--dark-color);
+}
+
+/* Options Section */
+.options-section {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: var(--light-color);
+    border-radius: var(--radius);
+    border: 1px dashed var(--border-color);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--secondary-color);
+}
+
+/* Info Card */
+.info-card {
+    padding: 1rem;
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    margin-top: 1rem;
+}
+
+.info-card p {
+    margin: 0;
+    color: var(--secondary-color);
+}
+
+/* Toggle Wrapper */
+.toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--light-color);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+}
+
+.toggle-text {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+/* Form Sidebar */
+.form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.sidebar-card .card-header {
+    padding: 1rem;
+    background: var(--light-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.sidebar-card .card-body {
+    padding: 1rem;
+}
+
+/* Preview Content */
+.preview-content {
+    min-height: 150px;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius);
+    padding: 1rem;
+    background: var(--light-color);
+}
+
+.empty-preview {
+    text-align: center;
+    color: var(--secondary-color);
+}
+
+.empty-preview p {
+    margin: 0;
+}
+
+/* Tips List */
+.tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tip-item {
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    background: var(--light-color);
+}
+
+.tip-item strong {
+    display: block;
+    color: var(--dark-color);
+    margin-bottom: 0.25rem;
+}
+
+.tip-item p {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+/* Stats List */
+.stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: var(--secondary-color);
+    font-size: 0.875rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Floating Save Button */
+.floating-save-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.floating-save-btn .btn {
+    border-radius: 50px;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.floating-save-btn .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Form Steps */
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+}
+
+/* Option Items */
+.option-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.option-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow);
+}
+
+.option-item.correct {
+    border-color: var(--success-color);
+    background: #f0fdf4;
+}
+
+.option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.option-number {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.option-actions {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.option-actions .btn {
+    padding: 0.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-sidebar {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .question-form-container {
+        padding: 1rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .header-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .progress-steps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .step {
+        width: 100%;
+        flex-direction: row;
+        gap: 1rem;
+        text-align: left;
+    }
+    
+    .step-icon {
+        margin-bottom: 0;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .step-navigation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .action-buttons .btn {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .floating-save-btn {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .floating-save-btn .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-card {
+        padding: 1rem;
+    }
+    
+    .step-header {
+        text-align: center;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .editor-toolbar {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form elements
+    const form = document.getElementById('questionForm');
+    const questionTypeSelect = document.getElementById('{{ form.question_type.id_for_label }}');
+    const questionTextArea = document.querySelector('textarea[name="question_text"]');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const addOptionBtn = document.getElementById('addOption');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Step navigation
+    const steps = document.querySelectorAll('.step');
+    const formSteps = document.querySelectorAll('.form-step');
+    let currentStep = 1;
+    
+    let optionCounter = 0;
+    
+    // Initialize
+    initializeForm();
+    
+    function initializeForm() {
+        // Set up step navigation
+        setupStepNavigation();
+        
+        // Set up question type change handler
+        questionTypeSelect.addEventListener('change', handleQuestionTypeChange);
+        
+        // Set up option management
+        addOptionBtn.addEventListener('click', addOption);
+        
+        // Set up form submission
+        form.addEventListener('submit', handleFormSubmission);
+        
+        // Set up save draft functionality
+        setupSaveDraft();
+        
+        // Set up floating save button
+        setupFloatingSave();
+        
+        // Set up live preview
+        setupLivePreview();
+        
+        // Set up statistics
+        setupStatistics();
+        
+        // Initialize question type
+        handleQuestionTypeChange();
+        
+        // Auto-focus on first field
+        const firstInput = form.querySelector('input, select, textarea');
+        if (firstInput) {
+            firstInput.focus();
+        }
+    }
+    
+    function setupStepNavigation() {
+        // Next step buttons
+        document.querySelectorAll('.next-step').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (validateCurrentStep()) {
+                    goToStep(currentStep + 1);
+                }
+            });
+        });
+        
+        // Previous step buttons
+        document.querySelectorAll('.prev-step').forEach(btn => {
+            btn.addEventListener('click', () => {
+                goToStep(currentStep - 1);
+            });
+        });
+        
+        // Step indicators
+        steps.forEach((step, index) => {
+            step.addEventListener('click', () => {
+                goToStep(index + 1);
+            });
+        });
+    }
+    
+    function goToStep(stepNumber) {
+        if (stepNumber < 1 || stepNumber > 3) return;
+        
+        // Hide current step
+        document.getElementById(`step${currentStep}-content`).classList.remove('active');
+        steps[currentStep - 1].classList.remove('active');
+        
+        // Show new step
+        document.getElementById(`step${stepNumber}-content`).classList.add('active');
+        steps[stepNumber - 1].classList.add('active');
+        
+        // Mark previous steps as completed
+        for (let i = 1; i < stepNumber; i++) {
+            steps[i - 1].classList.add('completed');
+        }
+        
+        currentStep = stepNumber;
+        
+        // Update progress indicator
+        updateProgressIndicator();
+        
+        // Update step counter badges
+        updateStepCounters();
+        
+        // Update button states
+        updateButtonStates();
+    }
+    
+    function updateProgressIndicator() {
+        steps.forEach((step, index) => {
+            if (index + 1 < currentStep) {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            } else if (index + 1 === currentStep) {
+                step.classList.add('active');
+                step.classList.remove('completed');
+            } else {
+                step.classList.remove('active', 'completed');
+            }
+        });
+    }
+    
+    function updateStepCounters() {
+        const stepCounters = document.querySelectorAll('.step-counter .current-step');
+        stepCounters.forEach(counter => {
+            counter.textContent = currentStep;
+        });
+    }
+    
+    function updateButtonStates() {
+        const prevButtons = document.querySelectorAll('.prev-step');
+        const nextButtons = document.querySelectorAll('.next-step');
+        
+        // Update previous buttons
+        prevButtons.forEach(btn => {
+            btn.disabled = currentStep === 1;
+        });
+        
+        // Update next buttons
+        nextButtons.forEach(btn => {
+            btn.disabled = currentStep === 3;
+        });
+    }
+    
+    function validateCurrentStep() {
+        const currentStepElement = document.getElementById(`step${currentStep}-content`);
+        const requiredFields = currentStepElement.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        // Special validation for step 2 (question and options)
+        if (currentStep === 2) {
+            const selectedType = questionTypeSelect.value;
+            if (['multiple_choice', 'single_choice'].includes(selectedType)) {
+                const options = optionsContainer.querySelectorAll('.option-text');
+                const correctOptions = optionsContainer.querySelectorAll('.option-correct[value="true"]');
+                
+                if (options.length < 2) {
+                    showAlert('Please add at least 2 options for this question type.', 'warning');
+                    isValid = false;
+                } else if (correctOptions.length === 0) {
+                    showAlert('Please mark at least one option as correct.', 'warning');
+                    isValid = false;
+                }
+            }
+        }
+        
+        return isValid;
+    }
+    
+    function handleQuestionTypeChange() {
+        const selectedType = questionTypeSelect.value;
+        const showOptions = ['multiple_choice', 'single_choice'].includes(selectedType);
+        
+        if (showOptions) {
+            document.getElementById('optionsSection').style.display = 'block';
+            // Don't automatically add options - let user add them manually
+        } else {
+            document.getElementById('optionsSection').style.display = 'none';
+        }
+        
+        updatePreview();
+    }
+    
+    function addOption() {
+        optionCounter++;
+        
+        // Hide the no options message
+        const noOptionsMessage = document.getElementById('noOptionsMessage');
+        if (noOptionsMessage) {
+            noOptionsMessage.style.display = 'none';
+        }
+        
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'option-item';
+        optionDiv.innerHTML = `
+            <div class="option-header">
+                <span class="option-number">${optionCounter}</span>
+                <div class="option-actions">
+                    <button type="button" class="btn btn-outline-success btn-sm toggle-correct" title="Mark as correct">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-option" title="Remove option">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-2">
+                <input type="text" class="form-control option-text" placeholder="Enter option text" required>
+            </div>
+            <input type="hidden" class="option-correct" value="false">
+        `;
+        
+        optionsContainer.appendChild(optionDiv);
+        
+        // Add event listeners
+        const toggleBtn = optionDiv.querySelector('.toggle-correct');
+        const removeBtn = optionDiv.querySelector('.remove-option');
+        const correctInput = optionDiv.querySelector('.option-correct');
+        const optionText = optionDiv.querySelector('.option-text');
+        
+        toggleBtn.addEventListener('click', function() {
+            const isCorrect = correctInput.value === 'true';
+            correctInput.value = !isCorrect;
+            
+            if (!isCorrect) {
+                optionDiv.classList.add('correct');
+                optionDiv.classList.remove('incorrect');
+                toggleBtn.classList.remove('btn-outline-success');
+                toggleBtn.classList.add('btn-success');
+            } else {
+                optionDiv.classList.remove('correct');
+                optionDiv.classList.add('incorrect');
+                toggleBtn.classList.remove('btn-success');
+                toggleBtn.classList.add('btn-outline-success');
+            }
+            
+            updateStatistics();
+            updatePreview();
+        });
+        
+        removeBtn.addEventListener('click', function() {
+            optionDiv.remove();
+            updateOptionNumbers();
+            
+            // Show no options message if no options remain
+            const remainingOptions = optionsContainer.querySelectorAll('.option-item');
+            if (remainingOptions.length === 0) {
+                const noOptionsMessage = document.getElementById('noOptionsMessage');
+                if (noOptionsMessage) {
+                    noOptionsMessage.style.display = 'block';
+                }
+            }
+            
+            updateStatistics();
+            updatePreview();
+        });
+        
+        optionText.addEventListener('input', function() {
+            updatePreview();
+        });
+        
+        updateStatistics();
+        updatePreview();
+    }
+    
+    function updateOptionNumbers() {
+        const options = optionsContainer.querySelectorAll('.option-item');
+        options.forEach((option, index) => {
+            const numberSpan = option.querySelector('.option-number');
+            numberSpan.textContent = index + 1;
+        });
+        optionCounter = options.length;
+        
+        // Show no options message if no options remain
+        if (options.length === 0) {
+            const noOptionsMessage = document.getElementById('noOptionsMessage');
+            if (noOptionsMessage) {
+                noOptionsMessage.style.display = 'block';
+            }
+        }
+    }
+    
+    function setupLivePreview() {
+        if (questionTextArea) {
+            questionTextArea.addEventListener('input', updatePreview);
+        }
+        
+        // Update preview on any form change
+        form.addEventListener('input', updatePreview);
+        form.addEventListener('change', updatePreview);
+    }
+    
+    function updatePreview() {
+        const previewContainer = document.getElementById('questionPreview');
+        const questionText = questionTextArea ? questionTextArea.value : '';
+        const selectedType = questionTypeSelect.value;
+        
+        if (!questionText.trim()) {
+            previewContainer.innerHTML = `
+                <div class="empty-preview">
+                    <div class="empty-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h6 class="empty-title">Question Preview</h6>
+                    <p class="empty-description">Start typing to see a live preview of your question</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let previewHTML = `
+            <div class="question-text mb-3">
+                <strong>Question:</strong><br>
+                ${questionText}
+            </div>
+        `;
+        
+        if (['multiple_choice', 'single_choice'].includes(selectedType)) {
+            const options = optionsContainer.querySelectorAll('.option-text');
+            if (options.length > 0) {
+                previewHTML += '<div class="options-list">';
+                options.forEach((option, index) => {
+                    const isCorrect = option.parentElement.parentElement.querySelector('.option-correct').value === 'true';
+                    const optionClass = isCorrect ? 'option correct' : 'option';
+                    previewHTML += `
+                        <div class="${optionClass}">
+                            <strong>${String.fromCharCode(65 + index)}.</strong> ${option.value || `Option ${index + 1}`}
+                            ${isCorrect ? ' <i class="fas fa-check text-success"></i>' : ''}
+                        </div>
+                    `;
+                });
+                previewHTML += '</div>';
+            }
+        }
+        
+        previewContainer.innerHTML = previewHTML;
+    }
+    
+    function setupStatistics() {
+        updateStatistics();
+        
+        if (questionTextArea) {
+            questionTextArea.addEventListener('input', updateStatistics);
+        }
+    }
+    
+    function updateStatistics() {
+        // Word count
+        const questionText = questionTextArea ? questionTextArea.value : '';
+        const wordCount = questionText.trim() ? questionText.trim().split(/\s+/).length : 0;
+        document.getElementById('wordCount').textContent = wordCount;
+        
+        // Character count
+        const charCount = questionText.length;
+        document.getElementById('charCount').textContent = charCount;
+        
+        // Option count
+        const optionCount = optionsContainer.querySelectorAll('.option-item').length;
+        document.getElementById('optionCount').textContent = optionCount;
+        
+        // Correct answer count
+        const correctCount = optionsContainer.querySelectorAll('.option-correct[value="true"]').length;
+        document.getElementById('correctCount').textContent = correctCount;
+    }
+    
+    function handleFormSubmission(e) {
+        e.preventDefault();
+        
+        if (!validateCurrentStep()) {
+            showAlert('Please complete all required fields correctly.', 'danger');
+            return;
+        }
+        
+        // Validate options if needed
+        const selectedType = questionTypeSelect.value;
+        if (['multiple_choice', 'single_choice'].includes(selectedType)) {
+            const options = optionsContainer.querySelectorAll('.option-text');
+            const correctOptions = optionsContainer.querySelectorAll('.option-correct[value="true"]');
+            
+            if (options.length < 2) {
+                showAlert('Please add at least 2 options for this question type.', 'warning');
+                return;
+            }
+            
+            if (correctOptions.length === 0) {
+                showAlert('Please mark at least one option as correct.', 'warning');
+                return;
+            }
+            
+            // Add options data to form
+            const optionsData = [];
+            options.forEach((option, index) => {
+                const correctInput = option.parentElement.parentElement.querySelector('.option-correct');
+                optionsData.push({
+                    text: option.value,
+                    is_correct: correctInput.value === 'true'
+                });
+            });
+            
+            // Create hidden input for options
+            let optionsInput = form.querySelector('input[name="options_data"]');
+            if (!optionsInput) {
+                optionsInput = document.createElement('input');
+                optionsInput.type = 'hidden';
+                optionsInput.name = 'options_data';
+                form.appendChild(optionsInput);
+            }
+            optionsInput.value = JSON.stringify(optionsData);
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<span class="loading"></span> Saving...';
+        submitBtn.disabled = true;
+        
+        // Submit form
+        form.submit();
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const formCard = form.closest('.form-card');
+        formCard.insertBefore(alertDiv, formCard.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+
+// Text formatting functions
+function formatText(command) {
+    const textarea = document.querySelector('textarea[name="question_text"]');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    let formattedText = '';
+    switch (command) {
+        case 'bold':
+            formattedText = `**${selectedText}**`;
+            break;
+        case 'italic':
+            formattedText = `*${selectedText}*`;
+            break;
+        case 'underline':
+            formattedText = `__${selectedText}__`;
+            break;
+    }
+    
+    textarea.value = textarea.value.substring(0, start) + formattedText + textarea.value.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + 2, start + 2 + selectedText.length);
+}
+
+function insertImage() {
+    const url = prompt('Enter image URL:');
+    if (url) {
+        const textarea = document.querySelector('textarea[name="question_text"]');
+        const imageMarkdown = `![Image](${url})`;
+        const cursorPos = textarea.selectionStart;
+        
+        textarea.value = textarea.value.substring(0, cursorPos) + imageMarkdown + textarea.value.substring(cursorPos);
+        textarea.focus();
+        textarea.setSelectionRange(cursorPos + imageMarkdown.length, cursorPos + imageMarkdown.length);
+    }
+}
+
+// Save functionality
+function setupSaveDraft() {
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    if (saveDraftBtn) {
+        saveDraftBtn.addEventListener('click', saveDraft);
+    }
+}
+
+function setupFloatingSave() {
+    const floatingSaveBtn = document.getElementById('floatingSaveBtn');
+    if (floatingSaveBtn) {
+        floatingSaveBtn.addEventListener('click', saveQuestion);
+    }
+}
+
+function saveDraft() {
+    // Save as draft (same as regular save but with draft status)
+    saveQuestion(true);
+}
+
+function saveQuestion(isDraft = false) {
+    // Validate form
+    if (!validateCurrentStep()) {
+        showAlert('Please complete all required fields correctly.', 'danger');
+        return;
+    }
+    
+    // Prepare form data
+    const formData = new FormData(form);
+    
+    // Add draft status if saving as draft
+    if (isDraft) {
+        formData.append('is_draft', 'true');
+    }
+    
+    // Add options data if needed
+    const selectedType = questionTypeSelect.value;
+    if (['multiple_choice', 'single_choice'].includes(selectedType)) {
+        const options = optionsContainer.querySelectorAll('.option-text');
+        const optionsData = [];
+        options.forEach((option, index) => {
+            const correctInput = option.parentElement.parentElement.querySelector('.option-correct');
+            optionsData.push({
+                text: option.value,
+                is_correct: correctInput.value === 'true'
+            });
+        });
+        formData.append('options_data', JSON.stringify(optionsData));
+    }
+    
+    // Show loading state
+    const saveBtn = isDraft ? document.getElementById('saveDraftBtn') : document.getElementById('floatingSaveBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<span class="loading"></span> Saving...';
+    saveBtn.disabled = true;
+    
+    // Submit form via AJAX
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message || 'Question saved successfully!', 'success');
+            // Redirect to question list after a short delay
+            setTimeout(() => {
+                window.location.href = data.redirect_url || '/exams/questions/';
+            }, 1500);
+        } else {
+            showAlert(data.message || 'Error saving question. Please try again.', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('An error occurred while saving. Please try again.', 'danger');
+    })
+    .finally(() => {
+        // Restore button state
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+</script>
+{% endblock %} 

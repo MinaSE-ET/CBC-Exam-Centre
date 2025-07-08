@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ exam.title }} - Question {{ current_question_num }}{% endblock %}
+
+{% block content %}
+<style>
+    body.exam-mode {
+        background: #f4f6fa !important;
+    }
+    .exam-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: #fff;
+        border-bottom: 2px solid #e3e6ed;
+        padding: 1rem 0.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .exam-question-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 2.5rem 2rem 2rem 2rem;
+        margin-bottom: 2rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        transition: box-shadow 0.2s;
+    }
+    .exam-question-card:hover {
+        box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    }
+    .question-number {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3a4a;
+        margin-bottom: 0.5rem;
+    }
+    .question-type {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+    .question-marks {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #0d6efd;
+        margin-left: 0.5rem;
+    }
+    .question-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #222;
+        margin-bottom: 1.5rem;
+    }
+    .answer-area label {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #2d3a4a;
+    }
+    .answer-area textarea {
+        font-size: 1.1rem;
+        min-height: 120px;
+    }
+    .exam-nav-btns {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        background: #fff;
+        border-top: 2px solid #e3e6ed;
+        padding: 1rem 0;
+        z-index: 1001;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+    }
+    .exam-progress-bar {
+        height: 8px;
+        background: #e3e6ed;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+    .exam-progress-bar-inner {
+        height: 100%;
+        background: linear-gradient(90deg, #0d6efd 60%, #6ea8fe 100%);
+        transition: width 0.3s;
+    }
+    .question-palette {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        justify-content: center;
+    }
+    .question-palette .btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .question-palette .btn-answered {
+        background: #0d6efd;
+        color: #fff;
+        border: none;
+    }
+    .question-palette .btn-unanswered {
+        background: #fff;
+        color: #adb5bd;
+        border: 1.5px solid #adb5bd;
+    }
+    @media (max-width: 600px) {
+        .exam-question-card { padding: 1.2rem 0.5rem; }
+        .exam-header { padding: 0.7rem 0.2rem; }
+        .exam-nav-btns { gap: 0.7rem; }
+    }
+</style>
+<script>
+document.body.classList.add('exam-mode');
+</script>
+<div class="exam-header d-flex justify-content-between align-items-center">
+    <div>
+        <div class="fw-bold" style="font-size:1.1rem;">Candidate: {{ user.get_full_name|default:user.username }}</div>
+        <div class="text-muted" style="font-size:0.95rem;">Exam: {{ exam.title }}</div>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="fw-bold" style="font-size:1.2rem;">
+            <i class="fas fa-clock me-1"></i>
+            <span id="time-remaining"></span>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="exam-progress-bar">
+        <div class="exam-progress-bar-inner" style="width: {{ progress_percentage }}%"></div>
+    </div>
+    <div class="question-palette">
+        {% for i in total_questions|add:"0"|make_list %}
+        <a href="?q={{ forloop.counter }}" 
+           class="btn {% if forloop.counter == current_question_num %}btn-answered{% else %}btn-unanswered{% endif %}"
+           aria-label="Go to question {{ forloop.counter }}">
+            {{ forloop.counter }}
+        </a>
+        {% endfor %}
+    </div>
+    <form method="post" id="examForm" autocomplete="off">
+        {% csrf_token %}
+        <div class="exam-question-card">
+            <div class="question-number">
+                Question {{ current_question_num }} of {{ total_questions }}
+                <span class="question-type">({{ current_question.get_question_type_display }})</span>
+                <span class="question-marks">{{ current_question.score }} marks</span>
+            </div>
+            <div class="question-text">{{ current_question.question_text }}</div>
+            <div class="answer-area">
+                {% if current_question.question_type == 'single_choice' or current_question.question_type == 'true_false' %}
+                    {% for option in current_question.options.all %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="q_{{ current_question.id }}" 
+                               id="q{{ current_question.id }}_opt{{ option.id }}" 
+                               value="{{ option.id }}"
+                               {% if saved_answer and option.id in saved_answer.selected_options.all %}checked{% endif %}>
+                        <label class="form-check-label" for="q{{ current_question.id }}_opt{{ option.id }}">
+                            {{ option.text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% elif current_question.question_type == 'multiple_choice' %}
+                    {% for option in current_question.options.all %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="q_{{ current_question.id }}" 
+                               id="q{{ current_question.id }}_opt{{ option.id }}" 
+                               value="{{ option.id }}"
+                               {% if saved_answer and option.id in saved_answer.selected_options.all %}checked{% endif %}>
+                        <label class="form-check-label" for="q{{ current_question.id }}_opt{{ option.id }}">
+                            {{ option.text }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                {% elif current_question.question_type == 'short_answer' %}
+                    <label for="q_{{ current_question.id }}">Your Answer:</label>
+                    <textarea class="form-control" name="q_{{ current_question.id }}" id="q_{{ current_question.id }}" rows="5" placeholder="Type your answer...">{{ saved_answer.text_answer|default:'' }}</textarea>
+                {% endif %}
+            </div>
+        </div>
+        <div style="height: 80px;"></div> <!-- Spacer for nav bar -->
+        <div class="exam-nav-btns">
+            {% if not is_first_question %}
+            <button type="submit" name="action" value="previous" class="btn btn-lg btn-outline-secondary px-4" aria-label="Previous question">
+                <i class="fas fa-arrow-left me-2"></i>Previous
+            </button>
+            {% endif %}
+            {% if not is_last_question %}
+            <button type="submit" name="action" value="next" class="btn btn-lg btn-primary px-4" aria-label="Next question">
+                Next<i class="fas fa-arrow-right ms-2"></i>
+            </button>
+            {% else %}
+            <button type="submit" name="action" value="submit" class="btn btn-lg btn-success px-4" id="submitBtn" aria-label="Submit exam">
+                <i class="fas fa-paper-plane me-2"></i>Submit Exam
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+<script>
+// Timer logic
+let timeRemaining = {{ exam.duration_minutes }} * 60;
+let timerInterval;
+function updateTimer() {
+    const min = Math.floor(timeRemaining / 60);
+    const sec = timeRemaining % 60;
+    document.getElementById('time-remaining').textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    if (timeRemaining <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('examForm').submit();
+    }
+    if (timeRemaining === 300) {
+        // 5 minutes left warning
+        document.getElementById('time-remaining').classList.add('text-danger');
+        alert('Only 5 minutes left! Please review and submit your answers.');
+    }
+    timeRemaining--;
+}
+document.addEventListener('DOMContentLoaded', function() {
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+    // Request full screen
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
+        document.documentElement.mozRequestFullScreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) { /* IE/Edge */
+        document.documentElement.msRequestFullscreen();
+    }
+    // Prevent right-click, copy, and context menu
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    document.addEventListener('copy', function(e) { e.preventDefault(); });
+    document.addEventListener('cut', function(e) { e.preventDefault(); });
+    document.addEventListener('paste', function(e) { e.preventDefault(); });
+    // Warn or auto-submit if full screen is exited
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            alert('You have exited full screen. The exam will be submitted.');
+            document.getElementById('examForm').submit();
+        }
+    });
+    // Auto-save answers when navigating
+    const form = document.getElementById('examForm');
+    const inputs = form.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Auto-save when user changes an answer
+            const formData = new FormData(form);
+            formData.append('action', 'save');
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+        });
+    });
+});
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft' && !{{ is_first_question|yesno:"true,false" }}) {
+        // Previous question
+        const prevBtn = document.querySelector('button[value="previous"]');
+        if (prevBtn) prevBtn.click();
+    } else if (e.key === 'ArrowRight' && !{{ is_last_question|yesno:"true,false" }}) {
+        // Next question
+        const nextBtn = document.querySelector('button[value="next"]');
+        if (nextBtn) nextBtn.click();
+    } else if (e.key === 'Enter' && e.ctrlKey) {
+        // Submit exam
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.click();
+    }
+});
+</script>
+{% endblock %} 

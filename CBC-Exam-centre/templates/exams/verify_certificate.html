@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify Certificate - CBC Exam Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0"><i class="fas fa-certificate me-2"></i>Certificate Verification</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="certificate_id" class="form-label">Enter Certificate ID</label>
+                            <input type="text" class="form-control form-control-lg" id="certificate_id" name="certificate_id" placeholder="e.g. 1234-ABCD" value="{{ request.POST.certificate_id }}" required autofocus>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search me-2"></i>Verify
+                            </button>
+                        </div>
+                    </form>
+                    {% if error %}
+                        <div class="alert alert-danger text-center">{{ error }}</div>
+                    {% endif %}
+                    {% if certificate %}
+                        <div class="alert alert-success text-center">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i><br>
+                            <strong>Certificate is valid!</strong>
+                        </div>
+                        <div class="card border-success mb-3">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-certificate me-2"></i>Certificate Details
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Certificate ID:</strong> <code>{{ certificate.certificate_id }}</code></p>
+                                <p><strong>Student:</strong> {{ certificate.student.get_full_name|default:certificate.student.username }}</p>
+                                <p><strong>Exam:</strong> {{ certificate.exam.title }}</p>
+                                <p><strong>Course:</strong> {{ certificate.course.name }}</p>
+                                <p><strong>Score:</strong> {{ certificate.score }}/{{ certificate.exam.total_marks }} ({{ certificate.percentage_score }}%)</p>
+                                <p><strong>Grade:</strong> {{ certificate.get_grade }}</p>
+                                <p><strong>Status:</strong> <span class="badge bg-success">Valid</span></p>
+                                <p><strong>Issued Date:</strong> {{ certificate.issued_date|date:"F d, Y" }}</p>
+                                {% if certificate.expiry_date %}
+                                <p><strong>Expiry Date:</strong> {{ certificate.expiry_date|date:"F d, Y" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

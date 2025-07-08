@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4" data-aos="fade-down">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <h1 class="display-4 fw-bold text-primary mb-3">
+                        <i class="fas fa-tachometer-alt me-3"></i>
+                        Welcome to CBC Exam Platform
+                    </h1>
+                    <p class="lead text-muted">Manage your exam system efficiently with real-time insights and analytics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-gradient rounded-circle p-3">
+                                <i class="fas fa-file-alt text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Total Exams</h5>
+                            <h2 class="mb-0 fw-bold text-primary">{{ total_exams }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-gradient rounded-circle p-3">
+                                <i class="fas fa-question-circle text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Total Questions</h5>
+                            <h2 class="mb-0 fw-bold text-success">{{ total_questions }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-gradient rounded-circle p-3">
+                                <i class="fas fa-users text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Total Students</h5>
+                            <h2 class="mb-0 fw-bold text-info">{{ total_students }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-gradient rounded-circle p-3">
+                                <i class="fas fa-chart-line text-white fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-muted mb-1">Avg Score</h5>
+                            <h2 class="mb-0 fw-bold text-warning">{{ avg_score }}%</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Attempts Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-6 mb-4" data-aos="fade-right">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Exam Attempts Overview
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h3 class="text-primary fw-bold">{{ total_attempts }}</h3>
+                                <p class="text-muted mb-0">Total Attempts</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="text-success fw-bold">{{ completed_attempts }}</h3>
+                            <p class="text-muted mb-0">Completed</p>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {% if total_attempts > 0 %}{{ completed_attempts|floatformat:0 }}{% else %}0{% endif %}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Completion Rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-4" data-aos="fade-left">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>
+                        Performance Metrics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-success bg-gradient rounded p-2 me-3">
+                                    <i class="fas fa-check text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ completed_attempts }}</h6>
+                                    <small class="text-muted">Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-warning bg-gradient rounded p-2 me-3">
+                                    <i class="fas fa-clock text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ total_attempts|add:"-"|add:completed_attempts|floatformat:0 }}</h6>
+                                    <small class="text-muted">In Progress</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-gradient rounded p-2 me-3">
+                                    <i class="fas fa-star text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ avg_score }}%</h6>
+                                    <small class="text-muted">Average Score</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-info bg-gradient rounded p-2 me-3">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ total_students }}</h6>
+                                    <small class="text-muted">Active Students</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12" data-aos="fade-up">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Recent Exam Attempts
+                    </h5>
+                    <a href="{% url 'all_results' %}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_attempts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Exam</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for attempt in recent_attempts %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary bg-gradient rounded-circle p-2 me-3">
+                                                        <i class="fas fa-user text-white"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ attempt.student.get_full_name|default:attempt.student.username }}</h6>
+                                                        <small class="text-muted">{{ attempt.student.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <h6 class="mb-0">{{ attempt.exam.title }}</h6>
+                                                <small class="text-muted">{{ attempt.exam.course.name }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{% if attempt.score >= 70 %}success{% elif attempt.score >= 50 %}warning{% else %}danger{% endif %} fs-6">
+                                                    {{ attempt.score }}%
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if attempt.is_completed %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i> Completed
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i> In Progress
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small class="text-muted">{{ attempt.created_at|date:"M d, Y H:i" }}</small>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No recent attempts</h5>
+                            <p class="text-muted">Exam attempts will appear here once students start taking exams.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for future analytics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any dashboard-specific JavaScript here
+    console.log('Admin Dashboard loaded successfully');
+});
+</script>
+{% endblock %} 

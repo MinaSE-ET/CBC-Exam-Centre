@@ -1,0 +1,457 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Certification - {{ certification.exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-dark">
+                        <i class="fas fa-certificate me-2" style="color: #b21b2c;"></i>
+                        Certification Details
+                    </h1>
+                    <p class="text-muted mb-0">{{ certification.exam.title }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'my_certifications' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Certifications
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm certificate-card">
+                <div class="card-body p-0">
+                    <!-- Certificate Design -->
+                    <div class="certificate-container">
+                        <div class="certificate-header">
+                            <div class="logo-section">
+                                <img src="{% static 'img/logo.png' %}" alt="CBC Logo" class="certificate-logo">
+                                <div class="institution-info">
+                                    <h1 class="institution-name">Cambridge Business College</h1>
+                                    <p class="institution-tagline">Excellence in Education</p>
+                                </div>
+                            </div>
+                            <div class="certificate-badge">
+                                <i class="fas fa-certificate"></i>
+                                <span>OFFICIAL CERTIFICATE</span>
+                            </div>
+                        </div>
+
+                        <div class="certificate-content">
+                            <div class="certificate-title">
+                                <h2>Certificate of Completion</h2>
+                                <div class="title-underline"></div>
+                            </div>
+
+                            <div class="certificate-text">
+                                <p class="certificate-intro">This is to certify that</p>
+                                <h3 class="student-name">{{ certification.student.get_full_name|default:certification.student.username }}</h3>
+                                <p class="certificate-body">has successfully completed the examination for</p>
+                                <h4 class="exam-title">{{ certification.exam.title }}</h4>
+                                <p class="certificate-body">in the course</p>
+                                <h5 class="course-name">{{ certification.course.name }}</h5>
+                            </div>
+
+                            <div class="certificate-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ certification.percentage_score }}%</div>
+                                    <div class="stat-label">Final Score</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value grade-{{ certification.get_grade|lower }}">{{ certification.get_grade }}</div>
+                                    <div class="stat-label">Grade</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">{{ certification.score }}/{{ certification.exam.total_marks }}</div>
+                                    <div class="stat-label">Marks Obtained</div>
+                                </div>
+                            </div>
+
+                            <div class="certificate-footer">
+                                <div class="certificate-id">
+                                    <strong>Certificate ID:</strong> 
+                                    <span class="cert-id">{{ certification.certificate_id }}</span>
+                                </div>
+                                <div class="issue-date">
+                                    <strong>Issued on:</strong> {{ certification.issued_date|date:"F d, Y" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="certificate-signatures">
+                            <div class="signature-section">
+                                <div class="signature-line"></div>
+                                <p class="signature-name">Academic Director</p>
+                                <p class="signature-title">Cambridge Business College</p>
+                            </div>
+                            <div class="signature-section">
+                                <div class="signature-line"></div>
+                                <p class="signature-name">Course Instructor</p>
+                                <p class="signature-title">{{ certification.course.name }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2" style="color: #b21b2c;"></i>
+                        Certificate Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Certificate ID</small>
+                        <code class="text-primary">{{ certification.certificate_id }}</code>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Status</small>
+                        <span class="badge bg-success">{{ certification.get_status_display }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Issued Date</small>
+                        <strong>{{ certification.issued_date|date:"M d, Y" }}</strong>
+                    </div>
+                    {% if certification.expiry_date %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Expiry Date</small>
+                        <strong>{{ certification.expiry_date|date:"M d, Y" }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Verification URL</small>
+                        <a href="{% url 'verify_certification' certification.certificate_id %}" class="text-decoration-none">
+                            <i class="fas fa-external-link-alt me-1"></i>Verify Certificate
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2" style="color: #b21b2c;"></i>
+                        Exam Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Exam Title</small>
+                        <strong>{{ certification.exam.title }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Course</small>
+                        <strong>{{ certification.course.name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Passing Marks</small>
+                        <strong>{{ certification.exam.passing_marks }}/{{ certification.exam.total_marks }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Duration</small>
+                        <strong>{{ certification.exam.duration_minutes }} minutes</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.certificate-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+}
+
+.certificate-container {
+    background: white;
+    margin: 20px;
+    border: 3px solid #1a2a3a;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.certificate-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #1a2a3a 0%, #b21b2c 50%, #1a2a3a 100%);
+}
+
+.certificate-header {
+    background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.certificate-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #b21b2c 0%, #8e1623 100%);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.certificate-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: white;
+    border-radius: 50%;
+    padding: 10px;
+    border: 3px solid #b21b2c;
+}
+
+.institution-name {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+}
+
+.institution-tagline {
+    font-size: 1.1rem;
+    margin: 5px 0 0 0;
+    opacity: 0.9;
+    color: #b21b2c;
+    font-weight: 500;
+}
+
+.certificate-badge {
+    background: rgba(178, 27, 44, 0.9);
+    padding: 15px 25px;
+    border-radius: 25px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.certificate-badge i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 5px;
+    color: #ffffff;
+}
+
+.certificate-badge span {
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.certificate-content {
+    padding: 50px;
+    text-align: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.certificate-title h2 {
+    font-size: 2.5rem;
+    color: #1a2a3a;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.title-underline {
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #1a2a3a, #b21b2c);
+    margin: 0 auto 40px;
+    border-radius: 2px;
+}
+
+.certificate-text {
+    margin-bottom: 50px;
+}
+
+.certificate-intro {
+    font-size: 1.3rem;
+    color: #6c757d;
+    margin-bottom: 20px;
+}
+
+.student-name {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #1a2a3a;
+    margin: 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.certificate-body {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin: 15px 0;
+}
+
+.exam-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #b21b2c;
+    margin: 20px 0;
+}
+
+.course-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1a2a3a;
+    margin: 20px 0;
+}
+
+.certificate-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 40px 0;
+    padding: 30px;
+    background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+    border-radius: 15px;
+    color: white;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #b21b2c;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+.grade-a, .grade-a+ {
+    color: #28a745;
+}
+
+.grade-b {
+    color: #17a2b8;
+}
+
+.grade-c {
+    color: #ffc107;
+}
+
+.grade-d {
+    color: #fd7e14;
+}
+
+.grade-f {
+    color: #dc3545;
+}
+
+.certificate-footer {
+    margin-top: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.certificate-id {
+    margin-bottom: 15px;
+}
+
+.cert-id {
+    background: linear-gradient(135deg, #1a2a3a 0%, #b21b2c 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.issue-date {
+    color: #6c757d;
+}
+
+.certificate-signatures {
+    display: flex;
+    justify-content: space-around;
+    padding: 40px 50px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-top: 2px solid #dee2e6;
+}
+
+.signature-section {
+    text-align: center;
+}
+
+.signature-line {
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, #1a2a3a, #b21b2c);
+    margin: 0 auto 15px;
+}
+
+.signature-name {
+    font-weight: bold;
+    color: #1a2a3a;
+    margin-bottom: 5px;
+}
+
+.signature-title {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .certificate-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .certificate-stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .certificate-signatures {
+        flex-direction: column;
+        gap: 30px;
+    }
+}
+</style>
+{% endblock %} 
